@@ -11,7 +11,7 @@
     body {
       margin: 0;
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(to bottom right, #111, #222);
+      background: linear-gradient(to bottom right, #181818, #1d1d1d);
       color: #eee;
       display: flex;
       align-items: center;
@@ -19,36 +19,38 @@
       min-height: 100vh;
     }
     .container {
-      background: #1a1a1a;
+      background: #1b1b1b;
       border-radius: 20px;
       padding: 2rem;
       width: 100%;
-      max-width: 520px;
+      max-width: 540px;
       box-shadow: 0 0 20px #8000ff99;
       animation: fadeIn 0.6s ease-in-out;
     }
     .title-logo {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
       gap: 12px;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
     }
     .title-logo img {
-      height: 40px;
-      width: 40px;
+      height: 64px;
+      width: 64px;
       border-radius: 50%;
-      box-shadow: 0 0 10px #8000ff88;
+      box-shadow: 0 0 14px #8000ffaa;
     }
     .title-logo h1 {
-      color: #b166ff;
-      font-size: 1.8rem;
+      color: #c488ff;
+      font-size: 2.2rem;
       margin: 0;
     }
     .tabs {
       display: flex;
       justify-content: space-between;
       margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 8px;
     }
     .tab {
       flex: 1;
@@ -59,7 +61,7 @@
       border: none;
       cursor: pointer;
       font-weight: 600;
-      border-radius: 10px 10px 0 0;
+      border-radius: 10px;
       transition: background 0.3s;
     }
     .tab.active {
@@ -83,12 +85,15 @@
       width: 100%;
       padding: 0.5rem;
       margin-bottom: 1rem;
-      background: #2a2a2a;
+      background: #1f1f1f;
       border: 1px solid #444;
       border-radius: 8px;
       color: #fff;
       outline: none;
       transition: border-color 0.2s;
+    }
+    textarea {
+      resize: vertical;
     }
     input:focus, textarea:focus {
       border-color: #8000ff;
@@ -150,6 +155,14 @@
       from { width: 100%; }
       to   { width: 0%; }
     }
+    pre {
+      background: #141414;
+      padding: 1rem;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
@@ -165,60 +178,78 @@
       <button class="tab active" onclick="switchTab('send')">Send</button>
       <button class="tab" onclick="switchTab('spam')">Spam</button>
       <button class="tab" onclick="switchTab('delete')">Delete</button>
+      <button class="tab" onclick="switchTab('token')">Token Info</button>
     </div>
 
+    <!-- Webhook Send Tab -->
     <div id="send" class="tab-content active">
       <label>Webhook URL</label>
       <input type="text" id="sendUrl" placeholder="https://discord.com/api/webhooks/...">
-
       <label>Message</label>
-      <textarea id="sendMessage" rows="3" placeholder="Type your message..."></textarea>
-
+      <textarea id="sendMessage" rows="3" resize="vertical" placeholder="Message..."></textarea>
       <label>Username (optional)</label>
-      <input type="text" id="sendUsername" placeholder="Custom username">
-
+      <input type="text" id="sendUsername" placeholder="VoidHook Bot">
       <label>Avatar URL (optional)</label>
-      <input type="text" id="sendAvatar" placeholder="https://...">
-
+      <input type="text" id="sendAvatar" placeholder="https://example.com/avatar.png">
       <button class="action" onclick="sendSingle()">Send Message</button>
     </div>
 
+    <!-- Spam Tab -->
     <div id="spam" class="tab-content">
       <label>Webhook URL</label>
       <input type="text" id="spamUrl" placeholder="https://discord.com/api/webhooks/...">
-
       <label>Message</label>
-      <textarea id="spamMessage" rows="3" placeholder="Spam message..."></textarea>
-
+      <textarea id="spamMessage" rows="3" placeholder="Message..."></textarea>
       <label>Username (optional)</label>
-      <input type="text" id="spamUsername" placeholder="Custom username">
-
+      <input type="text" id="spamUsername" placeholder="VoidHook Bot">
       <label>Avatar URL (optional)</label>
-      <input type="text" id="spamAvatar" placeholder="https://...">
-
+      <input type="text" id="spamAvatar" placeholder="https://example.com/avatar.png">
       <label>Amount</label>
       <input type="number" id="spamAmount" value="5" min="1" max="100">
-
       <label>Interval (ms)</label>
       <input type="number" id="spamInterval" value="1000" min="100">
-
       <button class="action" onclick="sendRepeated()">Start Spam</button>
     </div>
 
+    <!-- Delete Webhook Tab -->
     <div id="delete" class="tab-content">
       <label>Webhook URL</label>
       <input type="text" id="deleteUrl" placeholder="https://discord.com/api/webhooks/...">
-
       <button class="action" onclick="deleteWebhook()">Delete Webhook</button>
+    </div>
+
+    <!-- Token Info Tab -->
+    <div id="token" class="tab-content">
+      <label>Discord Token</label>
+      <input type="text" id="tokenInput" placeholder="Paste token here">
+      <button class="action" onclick="getTokenInfo()">Get Info</button>
+      <div id="tokenDisplay" style="display:none;margin-top:1rem;">
+        <div style="display:flex;align-items:center;gap:15px;margin-bottom:1rem;">
+          <img id="tokenAvatar" src="" style="width:60px;height:60px;border-radius:50%;box-shadow:0 0 10px #8000ff77;">
+          <div>
+            <strong id="globalName">Name</strong> <span id="userTag" style="opacity:0.6;">@username</span><br>
+            <small>ID: <span id="userId">...</span></small>
+          </div>
+        </div>
+        <div><strong>Email:</strong> <span id="userEmail"></span></div>
+        <div><strong>Phone:</strong> <span id="userPhone"></span></div>
+        <div><strong>Nitro:</strong> <span id="nitroType"></span></div>
+        <div><strong>MFA Enabled:</strong> <span id="mfaStatus"></span></div>
+        <div><strong>Guild Tag:</strong> <span id="guildTag"></span></div>
+        <div style="margin-top:1rem;">
+          <strong>Bio:</strong>
+          <pre id="userBio"></pre>
+        </div>
+      </div>
+      <pre id="tokenOutput" style="display:none; margin-top:1rem;"></pre>
+      <button class="action" onclick="toggleTokenView()">Toggle JSON View</button>
     </div>
   </div>
 
   <script>
     function switchTab(tabId) {
-      const tabs = document.querySelectorAll('.tab');
-      const contents = document.querySelectorAll('.tab-content');
-      tabs.forEach(tab => tab.classList.remove('active'));
-      contents.forEach(content => content.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
       document.getElementById(tabId).classList.add('active');
     }
@@ -237,13 +268,10 @@
       const content = document.getElementById('sendMessage').value;
       const username = document.getElementById('sendUsername').value;
       const avatar_url = document.getElementById('sendAvatar').value;
-
       if (!url || !content) return showToast('Webhook URL and message required.');
-
       const payload = { content };
       if (username) payload.username = username;
       if (avatar_url) payload.avatar_url = avatar_url;
-
       try {
         await fetch(url, {
           method: 'POST',
@@ -251,9 +279,8 @@
           body: JSON.stringify(payload)
         });
         showToast('✅ Message sent!');
-      } catch (e) {
+      } catch {
         showToast('❌ Failed to send message.');
-        console.error(e);
       }
     }
 
@@ -264,15 +291,10 @@
       const interval = parseInt(document.getElementById('spamInterval').value);
       const username = document.getElementById('spamUsername').value;
       const avatar_url = document.getElementById('spamAvatar').value;
-
-      if (!url || !content || isNaN(amount) || isNaN(interval)) {
-        return showToast('Fill in all spam fields.');
-      }
-
+      if (!url || !content || isNaN(amount) || isNaN(interval)) return showToast('Fill in all fields.');
       const payload = { content };
       if (username) payload.username = username;
       if (avatar_url) payload.avatar_url = avatar_url;
-
       for (let i = 0; i < amount; i++) {
         try {
           await fetch(url, {
@@ -280,27 +302,66 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
-        } catch (e) {
-          console.error('Error sending:', e);
-        }
+        } catch {}
         await new Promise(r => setTimeout(r, interval));
       }
-
-      showToast('✅ Finished sending messages.');
+      showToast('✅ Spam finished.');
     }
 
     async function deleteWebhook() {
       const url = document.getElementById('deleteUrl').value;
       if (!url) return showToast('Enter a webhook URL.');
       if (!confirm('Are you sure you want to delete this webhook?')) return;
-
       try {
         await fetch(url, { method: 'DELETE' });
         showToast('✅ Webhook deleted.');
-      } catch (e) {
+      } catch {
         showToast('❌ Failed to delete webhook.');
-        console.error(e);
       }
+    }
+
+    async function getTokenInfo() {
+      const token = document.getElementById('tokenInput').value.trim();
+      const display = document.getElementById('tokenDisplay');
+      if (!token) return showToast('Enter a token.');
+      try {
+        const res = await fetch('https://discord.com/api/v10/users/@me', {
+          headers: { Authorization: token }
+        });
+        if (!res.ok) return showToast('❌ Invalid token');
+        const data = await res.json();
+        document.getElementById('tokenAvatar').src = data.avatar
+          ? `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png?size=128`
+          : 'https://cdn.discordapp.com/embed/avatars/0.png';
+        document.getElementById('globalName').textContent = data.global_name || '-';
+        document.getElementById('userTag').textContent = '@' + data.username;
+        document.getElementById('userId').textContent = data.id;
+        document.getElementById('userEmail').textContent = data.email || 'N/A';
+        document.getElementById('userPhone').textContent = data.phone || 'N/A';
+        document.getElementById('userBio').textContent = data.bio || 'None';
+        document.getElementById('mfaStatus').textContent = data.mfa_enabled ? '✅ Yes' : '❌ No';
+        document.getElementById('guildTag').textContent = data.primary_guild?.tag || 'None';
+        document.getElementById('tokenOutput').textContent = JSON.stringify(data, null, 2);
+        let nitro = '❌ No Nitro';
+        if (data.premium_type === 1) nitro = '🪄 Nitro Classic';
+        else if (data.premium_type === 2) nitro = '🚀 Nitro Boost';
+        else if (data.premium_type === 3) nitro = '✨ Nitro Basic';
+        document.getElementById('nitroType').textContent = nitro;
+        display.style.display = 'block';
+        showToast('✅ Token info loaded.');
+      } catch (err) {
+        console.error(err);
+        showToast('⚠️ Error fetching token info.');
+      }
+    }
+
+    function toggleTokenView() {
+      const display = document.getElementById('tokenDisplay');
+      const output = document.getElementById('tokenOutput');
+      const showingJson = output.style.display === 'block';
+
+      output.style.display = showingJson ? 'none' : 'block';
+      display.style.display = showingJson ? 'block' : 'none';
     }
   </script>
 </body>
